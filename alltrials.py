@@ -1,49 +1,42 @@
+# ==================================================================================================================================================================
+import requests
 
 
+def social_media_accounts(number):
+    url = f"https://api.us-east-1-main.seon.io/SeonRestService/phone-api/v1/+91{number}"
+    headers = {"X-API-KEY": "3b98a3b4-6945-402b-9c5f-01d4bf7f7383"}
+
+    try:
+        response = requests.get(url, headers=headers)
+        print(f"Response Status Code: {response.status_code}")
+        print(
+            f"Response Content: {response.content.decode()}"
+        )  # Print full response content for debugging
+
+        if response.status_code == 200:
+            data = response.json()
+            print(f"Response JSON: {data}")  # Print JSON content
+
+            if data.get("success"):
+                account_details = data.get("data", {}).get("account_details", {})
+                accounts = [
+                    k for k, v in account_details.items() if v.get("registered")
+                ]
+                return {"status": 200, "data": accounts}
+
+        return {"status": 200, "data": {}}
+    except Exception as e:
+        print(f"Error: {e}")
+        return {"data": {}, "status": 500, "error": str(e)}
 
 
-
-#==================================================================================================================================================================
-# import requests
-
-# def social_media_accounts(number):
-#     url = f"https://api.us-east-1-main.seon.io/SeonRestService/phone-api/v1/+91{number}"
-#     headers = {
-#         "X-API-KEY": "3b98a3b4-6945-402b-9c5f-01d4bf7f7383"
-#     }
-    
-#     try:
-#         response = requests.get(url, headers=headers)
-#         print(f"Response Status Code: {response.status_code}")
-#         print(f"Response Content: {response.content.decode()}")  # Print full response content for debugging
-        
-#         if response.status_code == 200:
-#             data = response.json()
-#             print(f"Response JSON: {data}")  # Print JSON content
-            
-#             if data.get('success'):
-#                 account_details = data.get('data', {}).get('account_details', {})
-#                 accounts = [k for k, v in account_details.items() if v.get('registered')]
-#                 return {'status': 200, 'data': accounts}
-        
-#         return {'status': 200, 'data': {}}
-#     except Exception as e:
-#         print(f"Error: {e}")
-#         return {'data': {}, 'status': 500, 'error': str(e)}
-
-# # Example usage
-# result = social_media_accounts("1234567890")
-# print(result)
-#==================================================================================================================================================================
+# Example usage
+result = social_media_accounts("1234567890")
+print(result)
+# ==================================================================================================================================================================
 
 
-
-
-
-
-
-
-#==================================================================================================================================================================
+# ==================================================================================================================================================================
 
 # import requests
 
@@ -58,7 +51,7 @@
 #         response = requests.get(url, headers=headers)
 #         print(f"Response Status Code: {response.status_code}")
 #         print(f"Response Content: {response.content.decode()}")  # Print full response content for debugging
-        
+
 #         if response.status_code == 200:
 #             return {'status': 200, 'data': response.json()}
 #         return {'status': response.status_code, 'data': {}}
@@ -68,51 +61,42 @@
 # # Example usage
 # result = upi_detail_fetcher("rudalphgonsalves2003@oksbi")
 # print(result)
-#==================================================================================================================================================================
+# ==================================================================================================================================================================
 
 
+# ==================================================================================================================================================================
+
+import requests
 
 
+def whatapp_lookup(number):
+    url = f"https://whatsapp-data1.p.rapidapi.com/number/91{number}"
+    headers = {
+        "X-RapidAPI-Key": "90decbbf63mshb133bb71ebec1b1p11e2a8jsnaa7b6a355591",
+        "X-RapidAPI-Host": "whatsapp-data1.p.rapidapi.com",
+    }
+
+    try:
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            return {"status": 200, "data": response.json()}
+        return {"status": 200, "data": {}}
+    except Exception as error:
+        return {"data": {}, "status": 500, "error": str(error)}
 
 
-
-#==================================================================================================================================================================
-
-# import requests
-
-# def whatapp_lookup(number):
-#     url = f"https://whatsapp-data1.p.rapidapi.com/number/91{number}"
-#     headers = {
-#         'X-RapidAPI-Key': 'b95fd8411bmsh0848506b3e8609bp11583cjsnc7dd84f5f6ec',
-#         'X-RapidAPI-Host': 'whatsapp-osint.p.rapidapi.com'
-#     }
-
-#     try:
-#         response = requests.get(url, headers=headers)
-#         if response.status_code == 200:
-#             return {'status': 200, 'data': response.json()}
-#         return {'status': 200, 'data': {}}
-#     except Exception as error:
-#         return {'data': {}, 'status': 500, 'error': str(error)}
-
-# # Example usage
-# result = whatapp_lookup("7249735828")
-# print(result)
-#==================================================================================================================================================================
+# Example usage
+result = whatapp_lookup("9408974741")
+print(result)
+# ==================================================================================================================================================================
 
 
-
-
-
-
-
-
-#==================================================================================================================================================================
+# ==================================================================================================================================================================
 
 # import requests
 
 # def truecaller_detail_fetcher(number):
-#     url = 'https://truecaller4.p.rapidapi.com/api/v1/getDetails'
+#     url = 'https://truecaller4.p.rapidapi.com/api/v1/getDetailsBulk'
 #     params = {
 #         'phone': number,
 #         'countryCode': 'IN'
@@ -176,18 +160,29 @@
 #     print()
 
 # # Example usage
-# result = truecaller_detail_fetcher("7249735828")
+# result = truecaller_detail_fetcher("9408974741")
 # print_formatted_output(result.get("data", []))
-#==================================================================================================================================================================
+# ==================================================================================================================================================================
 
 
+def eyecon_detail_fetcher(country_code, number):
+    url = "https://eyecon.p.rapidapi.com/api/v1/search"
+    params = {"code": country_code, "number": number}
+    headers = {
+        "X-RapidAPI-Key": "b95fd8411bmsh0848506b3e8609bp11583cjsnc7dd84f5f6ec",
+        "X-RapidAPI-Host": "eyecon.p.rapidapi.com",
+    }
+
+    try:
+        response = requests.get(url, params=params, headers=headers)
+        if response.status_code == 200:
+            return response.json()
+        return {}
+    except Exception as e:
+        return {"error": str(e)}
 
 
-
-
-
-
-#==================================================================================================================================================================
+# ==================================================================================================================================================================
 
 # import requests
 
@@ -231,7 +226,21 @@
 # # Example usage
 # result = eyecon_detail_fetcher('91', '7249735828')
 # print_formatted_output(result)
-#==================================================================================================================================================================
+# ==================================================================================================================================================================
 
 
+def truecaller_detail_fetcher(number):
+    url = "https://truecaller4.p.rapidapi.com/api/v1/getDetails"
+    params = {"phone": number, "countryCode": "IN"}
+    headers = {
+        "X-RapidAPI-Key": "b95fd8411bmsh0848506b3e8609bp11583cjsnc7dd84f5f6ec",
+        "X-RapidAPI-Host": "truecaller4.p.rapidapi.com",
+    }
 
+    try:
+        response = requests.get(url, params=params, headers=headers)
+        if response.status_code == 200:
+            return response.json()
+        return {}
+    except Exception as e:
+        return {"error": str(e)}
