@@ -40,23 +40,23 @@ print(result)
 
 # import requests
 
-# def upi_detail_fetcher(upi_id):
-#     url = f"https://upi-details-fetcher.p.rapidapi.com/find_upi_details/{upi_id}"
-#     headers = {
-#         'X-RapidAPI-Key': 'b95fd8411bmsh0848506b3e8609bp11583cjsnc7dd84f5f6ec',
-#         'X-RapidAPI-Host': 'upi-details-fetcher.p.rapidapi.com'
-#     }
+def upi_detail_fetcher(upi_id):
+    url = f"https://upi-details-fetcher.p.rapidapi.com/find_upi_details/{upi_id}"
+    headers = {
+        'X-RapidAPI-Key': 'b95fd8411bmsh0848506b3e8609bp11583cjsnc7dd84f5f6ec',
+        'X-RapidAPI-Host': 'upi-details-fetcher.p.rapidapi.com'
+    }
 
-#     try:
-#         response = requests.get(url, headers=headers)
-#         print(f"Response Status Code: {response.status_code}")
-#         print(f"Response Content: {response.content.decode()}")  # Print full response content for debugging
+    try:
+        response = requests.get(url, headers=headers)
+        print(f"Response Status Code: {response.status_code}")
+        print(f"Response Content: {response.content.decode()}")  # Print full response content for debugging
 
-#         if response.status_code == 200:
-#             return {'status': 200, 'data': response.json()}
-#         return {'status': response.status_code, 'data': {}}
-#     except Exception as e:
-#         return {'data': {}, 'status': 500, 'error': str(e)}
+        if response.status_code == 200:
+            return {'status': 200, 'data': response.json()}
+        return {'status': response.status_code, 'data': {}}
+    except Exception as e:
+        return {'data': {}, 'status': 500, 'error': str(e)}
 
 # # Example usage
 # result = upi_detail_fetcher("rudalphgonsalves2003@oksbi")

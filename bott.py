@@ -8,6 +8,7 @@ from alltrials import (
     social_media_accounts,
     eyecon_detail_fetcher,
     truecaller_detail_fetcher,
+    upi_detail_fetcher
 )
 from pdf_formatting import PDF
 from PIL import Image
@@ -88,12 +89,13 @@ def handle_phone_number(message):
     eyecon_data = eyecon_detail_fetcher("91", number)
     whatsapp_data = whatapp_lookup(number)
     social_media_data = social_media_accounts(number)
-
+    upi_data = upi_detail_fetcher(number)
     response_data = {
         "truecaller": truecaller_data,
         "eyecon": eyecon_data,
         "Whatsapp_data": whatsapp_data,
         "social_media_data": social_media_data,
+        "Upi_Data":upi_data
     }
 
     generate_pdf(response_data)

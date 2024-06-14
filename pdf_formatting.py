@@ -31,13 +31,13 @@ class PDF(FPDF):
 
             if isinstance(value, dict):
                 self.cell(0, 10, "", 0, 1, "L")
-                self.add_table(value, indent + 10)  # Recursively add nested dictionary
+                self.add_table(value, indent)  # Recursively add nested dictionary
             elif isinstance(value, list):
                 self.cell(0, 10, "", 0, 1, "L")
                 for item in value:
                     if isinstance(item, dict):
-                        self.add_table(item, indent + 10)
+                        self.add_table(item, indent)
                     else:
-                        self.cell(indent + 10, 10, f"- {item}", 0, 1, "L")
+                        self.cell(indent, 10, f"- {item}", 0, 1, "L")
             else:
                 self.cell(0, 10, str(value), 0, 1, "L")
