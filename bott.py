@@ -1,4 +1,3 @@
-from io import BytesIO
 import os
 from tkinter import Image
 import telebot
@@ -10,6 +9,7 @@ from alltrials import (
     eyecon_detail_fetcher,
     truecaller_detail_fetcher,
 )
+from pdf_formatting import PDF
 from PIL import Image
 import tempfile
 
@@ -18,95 +18,19 @@ Token = "7339030817:AAFSKxPDo3Rayb0sZj6DA5brjJKRz4o45L8"
 bot = telebot.TeleBot(Token)
 
 
-class PDF(FPDF):
-    def add_header_to_first_page(pdf, logo_path, heading, subheading):
-        # Set font for header
-        pdf.set_font("Arial", "B", 12)
-
-        # Set header background color
-        pdf.set_fill_color(0, 0, 128)  # Navy blue
-
-        # Add header to first page
-        pdf.set_y(10)  # Set Y position for header
-        pdf.cell(0, 10, "", 0, 1, "C", 1)  # Empty cell for background color
-        pdf.set_y(10)  # Reset Y position for content
-        pdf.set_x(10)  # Set X position for logo
-        pdf.image(logo_path, x=10, y=10, w=20)
-        pdf.set_x(40)  # Set X position for heading
-        pdf.cell(0, 10, heading, 0, 0, "R")
-        pdf.set_x(40)  # Set X position for subheading
-        pdf.cell(0, 10, subheading, 0, 1, "R")
-
-    def header(self):
-        self.set_font("Arial", "B", 14)
-        self.cell(0, 10, "Response Details", 0, 1, "C")
-        self.ln(10)
-
-    def chapter_title(self, title):
-        self.set_font("Arial", "B", 12)
-        self.cell(0, 10, title, 0, 1, "L")
-        self.ln(5)
-
-    def chapter_body(self, body):
-        self.set_font("Arial", "", 12)
-        self.multi_cell(0, 10, body)
-        self.ln()
-
-    def add_table(self, data, level=0):
-        self.set_font("Arial", "", 12)
-        for key, value in data.items():
-            if isinstance(value, list):
-                self.cell(0, 10, f"{key}:", 0, 1, "L")
-                for item in value:
-                    self.ln(5)
-                    if isinstance(item, dict):
-                        self.add_sub_table(item, level + 1)
-                    else:
-                        self.add_key_value(key, item, level + 1)
-            elif isinstance(value, dict):
-                self.cell(0, 10, f"{key}:", 0, 1, "L")
-                self.add_sub_table(value, level + 1)
-            else:
-                self.add_key_value(key, value, level)
-
-    def add_sub_table(self, sub_data, level):
-        self.set_font("Arial", "", 12)
-        for sub_key, sub_value in sub_data.items():
-            if isinstance(sub_value, dict):
-                self.cell(0, 10, f"{sub_key}:", 0, 1, "L")
-                self.add_sub_table(sub_value, level + 1)
-            elif isinstance(sub_value, list):
-                self.cell(0, 10, f"{sub_key}:", 0, 1, "L")
-                for item in sub_value:
-                    self.ln(5)
-                    if isinstance(item, dict):
-                        self.add_sub_table(item, level + 1)
-                    else:
-                        self.add_key_value(sub_key, item, level + 1)
-            else:
-                self.add_key_value(sub_key, sub_value, level)
-
-    def add_key_value(self, key, value, level):
-        indent = " " * (level * 4)
-        self.cell(50, 10, f"{indent}{key}", 1)
-        self.cell(140, 10, f"{value}", 1)
-        self.ln()
-
-    def add_image(self, url):
-        try:
-            response = requests.get(url)
-            img = Image.open(BytesIO(response.content))
-            img_path = "temp_image.png"
-            img.save(img_path)
-            self.image(img_path, x=10, w=100)
-        except Exception as e:
-            self.cell(0, 10, f"Error loading image: {e}", 0, 1, "L")
-
-
 def generate_pdf(data, filename="response.pdf"):
     pdf = PDF()
-    pdf.add_page()
 
+    pdf = PDF()
+    # pdf.set_header_info(
+    #     "/home/pallav/Documents/GitHub/telegram-bot/logo.png",
+    #     "Rudrastra OSINT REPORT",
+    #     """NOTE: This report is strictly confidential and only for police officers. 
+    #     Don't share it with anyone else or post it on WhatsApp, Telegram, or anywhere else public.""",
+    # )
+    # pdf.add_page()
+
+    pdf.add_page()
     # Truecaller Section
     pdf.chapter_title("Truecaller Details:")
     truecaller_data = data["truecaller"]
@@ -151,23 +75,8 @@ def generate_pdf(data, filename="response.pdf"):
             # Delete temporary files
             os.unlink(temp_file_path)
             os.unlink(png_file_path)
+
         pdf.output(filename)
-
-
-pdf = FPDF()
-pdf.add_page()
-
-heading = "Rudrastra OSINT REPORT"
-subheading = """NOTE : This report is strictly confidential and only for police officers. Don't
-share it with anyone else or post it on WhatsApp, Telegram, or anywhere
-else public."""
-add_header_to_first_page = (
-    "/home/pallav/Documents/GitHub/telegram-bot/response.pdf",
-    "/home/pallav/Documents/GitHub/telegram-bot/logo.png",
-    heading,
-    subheading,
-)
-pdf.output("output.pdf")
 
 
 @bot.message_handler(
