@@ -29,10 +29,6 @@ def social_media_accounts(number):
         print(f"Error: {e}")
         return {"data": {}, "status": 500, "error": str(e)}
 
-
-# Example usage
-result = social_media_accounts("1234567890")
-print(result)
 # ==================================================================================================================================================================
 
 
@@ -85,9 +81,6 @@ def whatapp_lookup(number):
         return {"data": {}, "status": 500, "error": str(error)}
 
 
-# Example usage
-result = whatapp_lookup("9408974741")
-print(result)
 # ==================================================================================================================================================================
 
 
