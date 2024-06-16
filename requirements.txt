@@ -1,0 +1,6 @@
+fpdf==1.7.2
+Pillow==9.0.1
+Pillow==10.3.0
+pyTelegramBotAPI==4.19.1
+Requests==2.32.3
+gunicorn==20.1.0
