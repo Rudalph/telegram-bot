@@ -38,35 +38,35 @@ def clean_text(text):
     )
 
 
-def generate_pdf(data, filename="response.pdf"):
-    pdf = PDF()
-    pdf.header()
-    pdf.add_page()
+# def generate_pdf(data, filename="response.pdf"):
+#     pdf = PDF()
+#     pdf.header()
+#     pdf.add_page()
 
-    # Truecaller Section
-    pdf.chapter_title("Truecaller Details:")
-    truecaller_data = data.get("truecaller", {})
-    if isinstance(truecaller_data, dict):
-        for key, value in truecaller_data.items():
-            if key == "data" and isinstance(value, list):
-                for entry in value:
-                    cleaned_entry = {
-                        clean_text(k): clean_text(v) for k, v in entry.items()
-                    }
-                    pdf.add_table(cleaned_entry)
-            else:
-                pdf.add_table({clean_text(key): clean_text(value)})
+#     # Truecaller Section
+#     pdf.chapter_title("Truecaller Details:")
+#     truecaller_data = data.get("truecaller", {})
+#     if isinstance(truecaller_data, dict):
+#         for key, value in truecaller_data.items():
+#             if key == "data" and isinstance(value, list):
+#                 for entry in value:
+#                     cleaned_entry = {
+#                         clean_text(k): clean_text(v) for k, v in entry.items()
+#                     }
+#                     pdf.add_table(cleaned_entry)
+#             else:
+#                 pdf.add_table({clean_text(key): clean_text(value)})
 
-    # Eyecon Section
-    pdf.chapter_title("Eyecon Details:")
-    eyecon_data = data.get("eyecon", {})
-    if isinstance(eyecon_data, dict):
-        cleaned_eyecon_data = {
-            clean_text(k): clean_text(v) for k, v in eyecon_data.items()
-        }
-        pdf.add_table(cleaned_eyecon_data)
+#     # Eyecon Section
+#     pdf.chapter_title("Eyecon Details:")
+#     eyecon_data = data.get("eyecon", {})
+#     if isinstance(eyecon_data, dict):
+#         cleaned_eyecon_data = {
+#             clean_text(k): clean_text(v) for k, v in eyecon_data.items()
+#         }
+#         pdf.add_table(cleaned_eyecon_data)
 
-    # WhatsApp Section
+#     # WhatsApp Section
 
 
 def generate_pdf(data, filename="response.pdf"):
@@ -159,13 +159,15 @@ def generate_pdf(data, filename="response.pdf"):
 
 
 def check_user_auth(user_id, username):
-    ref = db.reference("users")
+    ref = db.reference("User")
     users = ref.get()
-    for user in users.values():
-        if user.get("telegram_id") == user_id or user.get("username") == username:
+    if users is None:
+        print("No users found in the database.")
+        return False
+    for user in users:
+        if user.get("id") == user_id or user.get("username") == username:
             return True
     return False
-
 
 @bot.message_handler(
     func=lambda message: message.text.isdigit() and len(message.text) == 10
@@ -173,8 +175,9 @@ def check_user_auth(user_id, username):
 def handle_phone_number(message):
     user_id = message.from_user.id
     username = message.from_user.username
-
+    print(user_id)
     if check_user_auth(user_id, username):
+    # if True:
         number = message.text
         first_name = message.from_user.first_name
         last_name = message.from_user.last_name
