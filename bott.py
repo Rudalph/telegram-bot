@@ -25,7 +25,7 @@ firebase_admin.initialize_app(
 )
 
 # Changed Token to my Token
-Token = "7339030817:AAFSKxPDo3Rayb0sZj6DA5brjJKRz4o45L8"
+Token = "6809147064:AAHJJ9WMPhcEmoF5JLSgksyxPZfkV-IZfQI"
 bot = telebot.TeleBot(Token)
 
 
@@ -36,38 +36,6 @@ def clean_text(text):
     return "".join(
         [char if len(char) == 1 and ord(char) < 128 else " " for char in text]
     )
-
-
-# def generate_pdf(data, filename="response.pdf"):
-#     pdf = PDF()
-#     pdf.header()
-#     pdf.add_page()
-
-#     # Truecaller Section
-#     pdf.chapter_title("Truecaller Details:")
-#     truecaller_data = data.get("truecaller", {})
-#     if isinstance(truecaller_data, dict):
-#         for key, value in truecaller_data.items():
-#             if key == "data" and isinstance(value, list):
-#                 for entry in value:
-#                     cleaned_entry = {
-#                         clean_text(k): clean_text(v) for k, v in entry.items()
-#                     }
-#                     pdf.add_table(cleaned_entry)
-#             else:
-#                 pdf.add_table({clean_text(key): clean_text(value)})
-
-#     # Eyecon Section
-#     pdf.chapter_title("Eyecon Details:")
-#     eyecon_data = data.get("eyecon", {})
-#     if isinstance(eyecon_data, dict):
-#         cleaned_eyecon_data = {
-#             clean_text(k): clean_text(v) for k, v in eyecon_data.items()
-#         }
-#         pdf.add_table(cleaned_eyecon_data)
-
-#     # WhatsApp Section
-
 
 def generate_pdf(data, filename="response.pdf"):
     pdf = PDF()
