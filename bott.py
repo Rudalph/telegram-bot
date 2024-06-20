@@ -22,7 +22,7 @@ firebase_admin.initialize_app(
 )
 
 # Changed Token to my Token
-Token = "7339030817:AAFSKxPDo3Rayb0sZj6DA5brjJKRz4o45L8"
+Token = "6809147064:AAHJJ9WMPhcEmoF5JLSgksyxPZfkV-IZfQI"
 bot = telebot.TeleBot(Token)
 
 
@@ -38,9 +38,6 @@ def check_user_auth(user_id, username):
         if user.get("id") == user_id or user.get("username") == username:
             return True
     return False
-
-
-
 
 
 @bot.callback_query_handler(func=lambda call: True)
