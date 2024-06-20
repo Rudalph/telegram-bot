@@ -62,9 +62,6 @@ def upi_detail_fetcher(upi_id):
 
 # ==================================================================================================================================================================
 
-import requests
-
-
 def whatapp_lookup(number):
     url = f"https://whatsapp-data1.p.rapidapi.com/number/91{number}"
     headers = {
@@ -232,6 +229,24 @@ def truecaller_detail_fetcher(number):
 
     try:
         response = requests.get(url, params=params, headers=headers)
+        if response.status_code == 200:
+            return response.json()
+        return {}
+    except Exception as e:
+        return {"error": str(e)}
+    
+# ==================================================================================================================================================================
+
+def email_detail_fetcher(email):
+    url = "https://google-data.p.rapidapi.com/email/"+str(email)
+    # params = {"email": email}
+    headers = {
+        "X-RapidAPI-Key": "b95fd8411bmsh0848506b3e8609bp11583cjsnc7dd84f5f6ec",
+        "X-RapidAPI-Host":  "google-data.p.rapidapi.com",
+    }
+
+    try:
+        response = requests.get(headers=headers)
         if response.status_code == 200:
             return response.json()
         return {}
