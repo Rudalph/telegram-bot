@@ -32,7 +32,7 @@ def decrement_credits(user_data):
     for doc in doc_ref:
         if (
             doc.to_dict()["telegramusername"] == user_data["telegramusername"]
-            and doc.to_dict()["telegram_id"] == user_data["telegramId"]
+            and doc.to_dict()["telegramId"] == user_data["telegramId"]
         ) and doc.to_dict()["credits"] > 0:
             key = doc.id
             db.collection("chatbot").document(key).update(
