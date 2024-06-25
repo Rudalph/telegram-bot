@@ -1,3 +1,46 @@
+# Initialize Firebase
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+# Initialize the Firebase app with credentials
+cred = credentials.Certificate("cred.json")
+firebase_admin.initialize_app(cred)
+
+# Get a reference to the Firestore service
+db = firestore.client()
+
+# Get a reference to the Users collection
+users_ref = db.collection('Users')
+print(users_ref)
+# Fetch all documents in the Users collection
+docs = users_ref.stream()
+
+# Print out each document
+for doc in docs:
+    print(f'{doc.id} => {doc.to_dict()["telegram_id"]}')
+
+
+
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+def check_user_auth(db,user_id, username):
+    users_ref = db.collections('Users')
+    users = users_ref.where('telegram_id', '==', user_id).get()
+
+    if not users:
+        print("No users found in the database.")
+        return False, None
+
+    for user in users:
+        user_data = user.to_dict()
+        if user_data['telegram_id'] == user_id:
+            return True, user_data
+    return False, None
+
+def decrement_credits(db,user_data):
+    user_ref = db.collections('Users').document(user_data['id'])
+    user_ref.update({'credits': firestore.Increment(-1)})
 # # import os
 # import telebot
 # # import requests

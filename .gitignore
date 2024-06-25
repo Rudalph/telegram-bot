@@ -4,3 +4,5 @@ __pycache__/alltrials.cpython-310.pyc
 *.pyc
 *.pyc
 test.py
+cred_prod.json
+cred.json
