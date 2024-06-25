@@ -7,6 +7,7 @@ from firebase_admin import credentials, firestore
 #   telegramId: number
 #   credits: number
 
+
 def check_user_auth(user_id, username):
     db = firestore.client()
     users_ref = db.collection("chatbot")
@@ -17,7 +18,10 @@ def check_user_auth(user_id, username):
 
     for user in users:
         user_data = user.to_dict()
-        if user_data["telegramId"] == user_id and user_data["telegramUsername"] == username:
+        if (
+            user_data["telegramId"] == user_id
+            and user_data["telegramusername"] == username
+        ):
             return True, user_data
     return False, None
 
@@ -27,7 +31,7 @@ def decrement_credits(user_data):
     doc_ref = db.collection("chatbot").get()
     for doc in doc_ref:
         if (
-            doc.to_dict()["telegramUsername"] == user_data["telegramUsername"]
+            doc.to_dict()["telegramusername"] == user_data["telegramusername"]
             and doc.to_dict()["telegram_id"] == user_data["telegramId"]
         ) and doc.to_dict()["credits"] > 0:
             key = doc.id
