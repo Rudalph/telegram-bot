@@ -17,7 +17,7 @@ def check_user_auth(user_id, username):
 
     for user in users:
         user_data = user.to_dict()
-        if user_data["telegramId"] == user_id or user_data["username"] == username:
+        if user_data["telegramId"] == user_id and user_data["telegramUsername"] == username:
             return True, user_data
     return False, None
 
@@ -27,8 +27,8 @@ def decrement_credits(user_data):
     doc_ref = db.collection("chatbot").get()
     for doc in doc_ref:
         if (
-            doc.to_dict()["username"] == user_data["username"]
-            or doc.to_dict()["telegram_id"] == user_data["telegramId"]
+            doc.to_dict()["telegramUsername"] == user_data["telegramUsername"]
+            and doc.to_dict()["telegram_id"] == user_data["telegramId"]
         ) and doc.to_dict()["credits"] > 0:
             key = doc.id
             db.collection("chatbot").document(key).update(

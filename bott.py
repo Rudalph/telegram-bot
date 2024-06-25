@@ -22,8 +22,8 @@ bot = telebot.TeleBot(Token)
 def handle_start(message):
     user_id = message.from_user.id
     username = message.from_user.username
-
-    if check_user_auth(user_id, username):
+    status,data  = check_user_auth(user_id, username)
+    if status:
         bot.send_message(message.chat.id, "Welcome")
 
         markup = types.InlineKeyboardMarkup(row_width=1)
@@ -55,7 +55,7 @@ def callback_query(call):
 
 def handle_phone_number(message):
     if message.text.isdigit() and len(message.text) == 10:
-        user_id = message.from_user.id
+        user_id = str(message.from_user.id)
         username = message.from_user.username
         is_auth, user_data = check_user_auth(user_id, username)
 
@@ -132,18 +132,38 @@ def handle_email(message):
 
 @bot.message_handler(commands=["mainmenu"])
 def handle_other_messages(message):
-    bot.send_message(message.chat.id, "Welcome")
+    user_id = str(message.from_user.id)
+    username = message.from_user.username
+    status,data  = check_user_auth(user_id, username)
+    if status:
+        bot.send_message(message.chat.id, "Welcome")
 
-    markup = types.InlineKeyboardMarkup(row_width=1)
-    phone_osint_button = types.InlineKeyboardButton(
-        "Phone Osint", callback_data="phone_osint"
-    )
-    email_osint_button = types.InlineKeyboardButton(
-        "Email Osint", callback_data="email_osint"
-    )
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        phone_osint_button = types.InlineKeyboardButton(
+            "Phone Osint", callback_data="phone_osint"
+        )
+        email_osint_button = types.InlineKeyboardButton(
+            "Email Osint", callback_data="email_osint"
+        )
 
-    markup.add(phone_osint_button, email_osint_button)
-    bot.send_message(message.chat.id, "Choose an option:", reply_markup=markup)
+        markup.add(phone_osint_button, email_osint_button)
+        bot.send_message(message.chat.id, "Choose an option:", reply_markup=markup)
+    else:
+        msg = welcome_message(username, user_id)
+        bot.send_message(message.chat.id, msg)
 
 
+@bot.message_handler(commands=["checkcredits"])
+def handle_other_messages(message):
+    user_id = str(message.from_user.id)
+    username = message.from_user.username
+    status,data  = check_user_auth(user_id, username)
+    if status:
+        msg = bot.send_message(message.chat.id, f"""Your account have {data["credits"]} Credit Points.""")
+        msg
+        if data["credits"] == 0:
+            bot.reply_to(msg, "You have low account balance please recharge")
+    else:
+        msg = welcome_message(username, user_id)
+        bot.send_message(message.chat.id, msg)
 bot.polling()
