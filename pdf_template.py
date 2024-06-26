@@ -99,3 +99,30 @@ def generate_pdf(data, filename="response.pdf"):
     # Write PDF content to file
     with open(filename, "wb") as f:
         f.write(pdf_content)
+
+
+def generate_pdf_gmail(data_dict, filename="response.pdf"):
+    pdf = PDF()
+    pdf.header()
+    pdf.add_page()
+    pdf.chapter_title("Complete Email OSINT Report")
+
+    # Add PROFILE_CONTAINER data
+    pdf.add_table(data_dict["email"])
+    pdf.ln()
+
+    # Add Gmail Details section
+    pdf.chapter_title("Gmail Details:")
+    gmail_data = data_dict.get("gmail", {}).get("emails", {}).get("PROFILE", {})
+    if gmail_data:
+        pdf.add_table(gmail_data)
+    else:
+        pdf.multi_cell(0, 10, "No Gmail details found.")
+    pdf.ln()
+
+    # Output the PDF to a file
+    # pdf.output("osint_report.pdf")
+
+    pdf_content = pdf.output(dest="S").encode("latin-1")
+    with open(filename, "wb") as f:
+        f.write(pdf_content)
