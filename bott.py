@@ -12,7 +12,7 @@ from Api_Endpoints.imei_lookup import imei_lookup
 from Api_Endpoints.domain_lookup import dns_lookup
 
 # Initialize Firebase
-cred = credentials.Certificate("cred.json")
+cred = credentials.Certificate("cred_prod.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
