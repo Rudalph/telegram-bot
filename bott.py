@@ -62,6 +62,8 @@ def callback_query(call):
         msg = bot.send_message(
             call.message.chat.id, "Please enter a Valid Ip Address: "
         )
+        bot.register_next_step_handler(msg, handle_ip_address_investigation)
+
     elif call.data == "imei_lookup":
         msg = bot.send_message(
             call.message.chat.id, "Please enter a Valid 15 digit IMEI number: "
@@ -75,7 +77,6 @@ def callback_query(call):
     elif call.data == "dns_lookup":
         msg = bot.send_message(call.message.chat.id, "Please enter a Domain Name :")
         bot.register_next_step_handler(msg, handle_dns_lookup)
-
     elif call.data == "complete_email":
         msg = bot.send_message(call.message.chat.id, "Please enter a Valid Email ID: ")
         bot.register_next_step_handler(msg, handle_complete_email)
