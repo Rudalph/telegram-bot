@@ -1,28 +1,31 @@
 # ==================================================================================================================================================================
 import requests
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+rapid_api_key = os.getenv("RAPID_API_KEY")
+seon_api_key = os.getenv("SEON_API_KEY")
 
 def social_media_accounts(number):
     url = f"https://api.us-east-1-main.seon.io/SeonRestService/phone-api/v1/+91{number}"
-    headers = {"X-API-KEY": "3b98a3b4-6945-402b-9c5f-01d4bf7f7383"}
+    headers = {"X-API-KEY": seon_api_key}
 
     try:
         response = requests.get(url, headers=headers)
-        print(f"Response Status Code: {response.status_code}")
-        print(
-            f"Response Content: {response.content.decode()}"
-        )  # Print full response content for debugging
+        # print(f"Response Status Code: {response.status_code}")
+        # print(
+        #     f"Response Content: {response.content.decode()}"
+        # )  # Print full response content for debugging
 
         if response.status_code == 200:
             data = response.json()
-            print(f"Response JSON: {data}")  # Print JSON content
-
             if data.get("success"):
                 account_details = data.get("data", {}).get("account_details", {})
                 accounts = [
                     k for k, v in account_details.items() if v.get("registered")
                 ]
-                return {"status": 200, "data": accounts}
+                return {"data": accounts}
 
         return {"status": 200, "data": {}}
     except Exception as e:
@@ -39,14 +42,14 @@ def social_media_accounts(number):
 def upi_detail_fetcher(upi_id):
     url = f"https://upi-details-fetcher.p.rapidapi.com/find_upi_details/{upi_id}"
     headers = {
-        'X-RapidAPI-Key': 'b95fd8411bmsh0848506b3e8609bp11583cjsnc7dd84f5f6ec',
+        'X-RapidAPI-Key': rapid_api_key,
         'X-RapidAPI-Host': 'upi-details-fetcher.p.rapidapi.com'
     }
 
     try:
         response = requests.get(url, headers=headers)
-        print(f"Response Status Code: {response.status_code}")
-        print(f"Response Content: {response.content.decode()}")  # Print full response content for debugging
+        # print(f"Response Status Code: {response.status_code}")
+        # print(f"Response Content: {response.content.decode()}")  # Print full response content for debugging
 
         if response.status_code == 200:
             return {'status': 200, 'data': response.json()}
@@ -62,13 +65,10 @@ def upi_detail_fetcher(upi_id):
 
 # ==================================================================================================================================================================
 
-import requests
-
-
 def whatapp_lookup(number):
     url = f"https://whatsapp-data1.p.rapidapi.com/number/91{number}"
     headers = {
-        "X-RapidAPI-Key": "90decbbf63mshb133bb71ebec1b1p11e2a8jsnaa7b6a355591",
+        "X-RapidAPI-Key": rapid_api_key,
         "X-RapidAPI-Host": "whatsapp-data1.p.rapidapi.com",
     }
 
@@ -162,7 +162,7 @@ def eyecon_detail_fetcher(country_code, number):
     url = "https://eyecon.p.rapidapi.com/api/v1/search"
     params = {"code": country_code, "number": number}
     headers = {
-        "X-RapidAPI-Key": "b95fd8411bmsh0848506b3e8609bp11583cjsnc7dd84f5f6ec",
+        "X-RapidAPI-Key": rapid_api_key,
         "X-RapidAPI-Host": "eyecon.p.rapidapi.com",
     }
 
@@ -226,7 +226,7 @@ def truecaller_detail_fetcher(number):
     url = "https://truecaller4.p.rapidapi.com/api/v1/getDetails"
     params = {"phone": number, "countryCode": "IN"}
     headers = {
-        "X-RapidAPI-Key": "b95fd8411bmsh0848506b3e8609bp11583cjsnc7dd84f5f6ec",
+        "X-RapidAPI-Key": rapid_api_key,
         "X-RapidAPI-Host": "truecaller4.p.rapidapi.com",
     }
 
@@ -237,3 +237,22 @@ def truecaller_detail_fetcher(number):
         return {}
     except Exception as e:
         return {"error": str(e)}
+    
+# ==================================================================================================================================================================
+
+def email_detail_fetcher(email):
+    url = "https://google-data.p.rapidapi.com/email/"+str(email)
+    # params = {"email": email}
+    headers = {
+        "X-RapidAPI-Key": rapid_api_key,
+        "X-RapidAPI-Host":  "google-data.p.rapidapi.com",
+    }
+
+    try:
+        response = requests.get(url,headers=headers)
+        if response.status_code == 200:
+            return response.json()
+        return {}
+    except Exception as e:
+        return {"error": str(e)}
+

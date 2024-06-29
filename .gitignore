@@ -1,2 +1,13 @@
 
-credentials.json
+__pycache__/alltrials.cpython-310.pyc
+*.pyc
+*.pyc
+*.pyc
+test.py
+cred_prod.json
+cred.json
+test.py
+test.py
+.env
+
+.env
