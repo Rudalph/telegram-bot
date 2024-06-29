@@ -17,7 +17,7 @@ from Api_Endpoints.upi_lookup import upi_lookup
 from Api_Endpoints.whois_lookup import whois_lookup
 
 # Initialize Firebase
-cred = credentials.Certificate("cred.json")
+cred = credentials.Certificate("cred_prod.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 

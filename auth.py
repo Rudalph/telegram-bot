@@ -9,7 +9,7 @@ from firebase_admin import credentials, firestore
 
 
 def check_user_auth(user_id, username):
-    db_collection = "Users"
+    db_collection = "chatbot"
     db = firestore.client()
     users_ref = db.collection(db_collection)
     users = users_ref.stream()
@@ -28,7 +28,7 @@ def check_user_auth(user_id, username):
 
 
 def decrement_credits(user_data):
-    db_collection = "Users"
+    db_collection = "chatbot"
 
     db = firestore.client()
     doc_ref = db.collection(db_collection).get()
