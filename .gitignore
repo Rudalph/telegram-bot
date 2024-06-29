@@ -8,3 +8,5 @@ cred_prod.json
 cred.json
 test.py
 test.py
+.env
+

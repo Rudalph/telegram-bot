@@ -3,16 +3,21 @@ from alltrials import *
 import firebase_admin
 from firebase_admin import credentials
 from telebot import types
-from pdf_template import generate_pdf, generate_pdf_gmail
+from pdf_template import create_phone_pdf, generate_pdf_gmail
 from auth import check_user_auth, decrement_credits
 from constants import welcome_message, help_message, purchase_not_activated
 from firebase_admin import credentials, firestore
 from Api_Endpoints.ip_lookup import *
 from Api_Endpoints.imei_lookup import imei_lookup
 from Api_Endpoints.domain_lookup import dns_lookup
+from Api_Endpoints.leak_check import leak_check
+from Api_Endpoints.ifsc_code import ifsc_lookup
+from Api_Endpoints.crypto_inves import crypto_inves
+from Api_Endpoints.upi_lookup import upi_lookup
+from Api_Endpoints.whois_lookup import whois_lookup
 
 # Initialize Firebase
-cred = credentials.Certificate("cred_prod.json")
+cred = credentials.Certificate("cred.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
@@ -25,28 +30,13 @@ bot = telebot.TeleBot(Token)
 def handle_start(message):
     user_id = message.from_user.id
     username = message.from_user.username
-    status, data = check_user_auth(user_id, username)
-    if status:
-        bot.send_message(message.chat.id, "Welcome")
-
-        markup = types.InlineKeyboardMarkup(row_width=1)
-        phone_osint_button = types.InlineKeyboardButton(
-            "Phone Osint", callback_data="phone_osint"
-        )
-        email_osint_button = types.InlineKeyboardButton(
-            "Email Osint", callback_data="email_osint"
-        )
-
-        markup.add(phone_osint_button, email_osint_button)
-        bot.send_message(message.chat.id, "Choose an option:", reply_markup=markup)
-    else:
-        msg = welcome_message(username, user_id)
-        bot.send_message(message.chat.id, msg)
+    msg = welcome_message(username, user_id)
+    bot.send_message(message.chat.id, msg)
 
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
-    comming_soon = ["cell_id", "nodal_search", "image_lookup", "vehicle_details"]
+    comming_soon = ["cell_id", "nodal_search", "image_lookup", "vehicle_details","subdomain_lookup"]
     if call.data == "phone_osint":
         phone_osint_subitems(call)
     elif call.data == "email_osint":
@@ -77,11 +67,29 @@ def callback_query(call):
     elif call.data == "dns_lookup":
         msg = bot.send_message(call.message.chat.id, "Please enter a Domain Name :")
         bot.register_next_step_handler(msg, handle_dns_lookup)
+    elif call.data == "gmail_data":
+        msg = bot.send_message(call.message.chat.id, "Please enter a Valid Email ID :")
+        bot.register_next_step_handler(msg, handle_email_data)
+    elif call.data == "breached_email":
+        msg = bot.send_message(call.message.chat.id, "Please enter a Valis Email ID: :")
+        bot.register_next_step_handler(msg, handle_leak_check)
     elif call.data == "complete_email":
         msg = bot.send_message(call.message.chat.id, "Please enter a Valid Email ID: ")
         bot.register_next_step_handler(msg, handle_complete_email)
+    elif call.data=="upi_accounts" or "upi_lookup":
+        msg = bot.send_message(call.message.chat.id, "Please enter a Valid UPI ID / Phone Number: ")
+        bot.register_next_step_handler(msg, handle_upi_lookup)         
     elif call.data == "domain_lookup":
         domain_lookup_subitems(call)
+    elif call.data == "ifsc_search":
+        msg = bot.send_message(call.message.chat.id, "Please enter a Valid IFSC Code: ")
+        bot.register_next_step_handler(msg, handle_ifsc)
+    elif call.data == "cryptocurrency":
+        msg = bot.send_message(call.message.chat.id, "Please enter a Valid Hash: ")
+        bot.register_next_step_handler(msg, hadle_crypto_inves)
+    elif call.data == "whois_lookup":
+        msg = bot.send_message(call.message.chat.id, "Please enter a Valid Domain : ")
+        bot.register_next_step_handler(msg, handle_whois_lookup)
     elif call.data in comming_soon:
         bot.send_message(call.message.chat.id, "Comming Soon")
     elif call.data == "next_page":
@@ -108,18 +116,23 @@ def handle_complete_phone_number(message):
                 eyecon_data = eyecon_detail_fetcher("91", number)
                 whatsapp_data = whatapp_lookup(number)
                 social_media_data = social_media_accounts(number)
-                upi_data = upi_detail_fetcher(number)
+                upi_data = upi_lookup(number)
+
+                bot.send_message(
+                    message.chat.id,
+                    "Generating Response....",
+                )
 
                 response_data = {
-                    "truecaller": truecaller_data,
-                    "eyecon": eyecon_data,
-                    "Whatsapp_data": whatsapp_data,
-                    "social_media_data": social_media_data,
+                    "Truecaller_data": truecaller_data,
+                    "eyecon_data": eyecon_data,
+                    "whatsapp_data": whatsapp_data,
+                    "social_media_accounts": social_media_data,
                     "Upi_Data": upi_data,
                 }
 
-                generate_pdf(response_data)
-                with open("response.pdf", "rb") as f:
+                create_phone_pdf(response_data)
+                with open("user_data.pdf", "rb") as f:
                     bot.send_document(message.chat.id, f)
 
                 bot.reply_to(
@@ -180,7 +193,10 @@ def handle_other_messages(message):
     status, data = check_user_auth(user_id, username)
 
     if status:
-        bot.send_message(message.chat.id, "Welcome")
+        bot.send_message(
+            message.chat.id,
+            "Welcome To Rudrastra OSINT Bot \n For More Featrues Checkout: rudrastra.in",
+        )
         send_first_page(message)
     else:
         msg = welcome_message(username, user_id)
@@ -190,11 +206,11 @@ def handle_other_messages(message):
 def send_first_page(message):
     options = [
         ("Phone Number OSINT", "phone_osint"),
-        ("Email Osint", "email_osint"),
-        ("UPI/VPA Lookup", "upi_lookup"),
+        ("Email OSINT", "email_osint"),
+        ("UPI/VPA Address Lookup", "upi_lookup"),
         ("IP Address LookUp", "ip_lookup"),
         ("Domain LookUp", "domain_lookup"),
-        ("Cryptocurrency Investigation", "cryptocurrency"),
+        ("Crypto Investigation", "cryptocurrency"),
         ("Next Page", "next_page"),
     ]
 
@@ -209,10 +225,12 @@ def send_first_page(message):
 def send_second_page(call):
     options = [
         ("IMEI Lookup", "imei_lookup"),
-        ("Cell ID Tools", "cell_id"),
+        ("Cell ID Decoder", "cell_id"),
         ("Nodal Officier Search", "nodal_search"),
         ("Image Location LookUp", "image_lookup"),
         ("Vehicle Details", "vehicle_details"),
+        ("IFSC Code Search", "ifsc_search"),
+        # (""),
         ("Previous Page", "previous_page"),
     ]
 
@@ -232,12 +250,12 @@ def send_second_page(call):
 def phone_osint_subitems(call):
     options = [
         ("Caller ID Search", "caller_id"),
-        ("LPG Data", "lpg_data"),
+        # ("LPG Data", "lpg_data"),
         ("UPI Accounts", "upi_accounts"),
-        ("Connected Dish TV providers", "dish_tv"),
-        ("Public Utility Lookup", "public_utility"),
-        ("MNP Lookup", "mnp_lookup"),
-        ("Connected Other Websites", "other_websites"),
+        # ("Connected Dish TV providers", "dish_tv"),
+        # ("Public Utility Lookup", "public_utility"),
+        # ("MNP Lookup", "mnp_lookup"),
+        ("Connected Social Accounts", "other_websites"),
         ("International Number Validator", "international_num"),
         ("Full OSINT Report/Deep Search", "full_osint"),
         ("Previous Page", "previous_page"),
@@ -300,9 +318,9 @@ def domain_lookup_subitems(call):
 def email_osint_subitems(call):
     options = [
         ("Gmail Data", "gmail_data"),
-        ("Connected Social Media Acc.", "connected_social"),
-        ("Breached Email", "breached_email"),
-        ("Complete Gmail OSINT", "complete_email"),
+        ("Connected Social Accounts", "connected_social"),
+        ("Breached Email Check", "breached_email"),
+        ("Full OSINT Report / Deep Search", "complete_email"),
         ("Previous Page", "previous_page"),
     ]
 
@@ -335,11 +353,13 @@ def handle_check_credits(message):
         msg = welcome_message(username, user_id)
         bot.send_message(message.chat.id, msg)
 
+
 @bot.message_handler(commands=["help"])
 def reply_on_help(message):
     username = message.from_user.username
     msg = help_message(username)
     bot.send_message(message.chat.id, msg)
+
 
 @bot.message_handler(commands=["purchase"])
 def reply_on_purchase(message):
@@ -348,8 +368,9 @@ def reply_on_purchase(message):
     status, data = check_user_auth(user_id, username)
     if status:
         msg = bot.send_message(
-            message.chat.id, f"""Your account have {data["credits"]} Credit Points. \n 
-            To Recharge your account go to https://www.rudrastra.in/register"""
+            message.chat.id,
+            f"""Your account have {data["credits"]} Credit Points. \n 
+            To Recharge your account go to https://www.rudrastra.in/register""",
         )
         msg
     else:
@@ -488,14 +509,215 @@ def handle_dns_lookup(message):
         bot.reply_to(message, "User not authenticated.")
 
 
+def handle_leak_check(message):
+    user_id = str(message.from_user.id)
+    username = message.from_user.username
+    is_auth, user_data = check_user_auth(user_id, username)
+
+    if is_auth:
+        if user_data["credits"] > 0:
+            email = message.text
+            email_data = leak_check(email)
+
+            # data =
+
+            # bot.send_message(message.chat.id, format_dict(email_data))
+
+            if email_data["success"]:
+                source_details = "\n ".join(
+                    [
+                        f'{source.get("name",{})} ({source.get("date",{})})'
+                        for source in email_data.get("sources", {})
+                    ]
+                )
+                message_text = (
+                    f"Email valid: {email_data['success']}\n"
+                    f"Found: {email_data['found']}\n"
+                    f"Fields: {', '.join(email_data['fields'])}\n"
+                    f"Sources: {source_details}"
+                )
+                bot.send_message(message.chat.id, message_text)
+
+                bot.reply_to(
+                    message,
+                    "Here is the response with Breach Information.",
+                )
+            else:
+                bot.send_message(message.chat.id, "Your Mail is not Breached Anywhere")
+
+            # Decrement user credits
+            decrement_credits(user_data)
+        else:
+            bot.reply_to(
+                message, "You have no credits left. Please recharge your account."
+            )
+    else:
+        bot.reply_to(message, "User not authenticated.")
+
+
+def handle_ifsc(message):
+    user_id = str(message.from_user.id)
+    username = message.from_user.username
+    is_auth, user_data = check_user_auth(user_id, username)
+
+    if is_auth:
+        if user_data["credits"] > 0:
+            ifsc = message.text
+            ifsc_data = ifsc_lookup(ifsc)
+
+            # data =
+
+            # source_details = "\n ".join([f'{source["name"]} ({source["date"]})' for source in email_data['sources']])
+
+            # message_text = (
+            #     f"Email valid: {email_data['success']}\n"
+            #     f"Found: {email_data['found']}\n"
+            #     f"Fields: {', '.join(email_data['fields'])}\n"
+            #     f"Sources: {source_details}"
+            # )
+            # bot.send_message(message.chat.id, message_text)
+
+            bot.send_message(message.chat.id, format_dict(ifsc_data))
+            bot.reply_to(
+                message,
+                "Here is the response with Bank Information.",
+            )
+
+            # Decrement user credits
+            decrement_credits(user_data)
+        else:
+            bot.reply_to(
+                message, "You have no credits left. Please recharge your account."
+            )
+    else:
+        bot.reply_to(message, "User not authenticated")
+
+
+def hadle_crypto_inves(message):
+    user_id = str(message.from_user.id)
+    username = message.from_user.username
+    is_auth, user_data = check_user_auth(user_id, username)
+
+    if is_auth:
+        if user_data["credits"] > 0:
+            hash = message.text
+            hash_data = crypto_inves(hash)
+
+            # data =
+
+            # source_details = "\n ".join([f'{source["name"]} ({source["date"]})' for source in email_data['sources']])
+
+            # message_text = (
+            #     f"Email valid: {email_data['success']}\n"
+            #     f"Found: {email_data['found']}\n"
+            #     f"Fields: {', '.join(email_data['fields'])}\n"
+            #     f"Sources: {source_details}"
+            # )
+            # bot.send_message(message.chat.id, message_text)
+
+            bot.send_message(message.chat.id, format_dict(hash_data))
+            bot.reply_to(
+                message,
+                "Here is the response with Transaction Information.",
+            )
+
+            # Decrement user credits
+            decrement_credits(user_data)
+        else:
+            bot.reply_to(
+                message, "You have no credits left. Please recharge your account."
+            )
+    else:
+        bot.reply_to(message, "User not authenticated")
+
+
+def handle_email_data(message):
+    user_id = str(message.from_user.id)
+    username = message.from_user.username
+    is_auth, user_data = check_user_auth(user_id, username)
+
+    if is_auth:
+        if user_data["credits"] > 0:
+            email = message.text
+            email_data = email_detail_fetcher(email)
+
+            # data =
+            bot.send_message(message.chat.id, format_dict(email_data))
+            bot.reply_to(
+                message,
+                "Here is the response with Email Information.",
+            )
+
+            # Decrement user credits
+            decrement_credits(user_data)
+        else:
+            bot.reply_to(
+                message, "You have no credits left. Please recharge your account."
+            )
+    else:
+        bot.reply_to(message, "User not authenticated")
+
+
+def handle_whois_lookup(message):
+    user_id = str(message.from_user.id)
+    username = message.from_user.username
+    is_auth, user_data = check_user_auth(user_id, username)
+
+    if is_auth:
+        if user_data["credits"] > 0:
+            domain = message.text
+            domain_data = whois_lookup(domain)
+
+            # data =
+            bot.send_message(message.chat.id, format_dict(domain_data))
+            bot.reply_to(
+                message,
+                "Here is the response with Domain Information.",
+            )
+
+            # Decrement user credits
+            decrement_credits(user_data)
+        else:
+            bot.reply_to(
+                message, "You have no credits left. Please recharge your account."
+            )
+    else:
+        bot.reply_to(message, "User not authenticated")
+
+def handle_upi_lookup(message):
+    user_id = str(message.from_user.id)
+    username = message.from_user.username
+    is_auth, user_data = check_user_auth(user_id, username)
+
+    if is_auth:
+        if user_data["credits"] > 0:
+            vpa = message.text
+            vpa_data = upi_lookup(vpa)
+
+            # data =
+            bot.send_message(message.chat.id, format_dict(vpa_data))
+            bot.reply_to(
+                message,
+                "Here is the response with UPI Information.",
+            )
+
+            # Decrement user credits
+            decrement_credits(user_data)
+        else:
+            bot.reply_to(
+                message, "You have no credits left. Please recharge your account."
+            )
+    else:
+        bot.reply_to(message, "User not authenticated")
+        
 def format_dict(d, indent=0):
     formatted = ""
     for key, value in d.items():
         if isinstance(value, dict):
-            formatted += " " * indent + f"{key}:\n"
+            formatted += " " * indent + f"{key}:\n\n"
             formatted += format_dict(value, indent + 4)
         else:
-            formatted += " " * indent + f"{key}: {value}\n"
+            formatted += " " * indent + f"{key}: {value}\n\n"
     return formatted
 
 

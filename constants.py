@@ -31,7 +31,7 @@ Feedback Link:-
 
 def purchase_not_activated(username, user_id):
     return f"""
-You are not activated please fill up the form https://www.rudrastra.in/register.
+You are not activated please fill up the form https://www.rudrastra.in/login.
 Your telegram Username is {username}.
 Your telegram userid is {user_id}.
 If you are facing any problem Contact +91 84320 03083 on Whatsapp

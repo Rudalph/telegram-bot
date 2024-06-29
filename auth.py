@@ -9,8 +9,9 @@ from firebase_admin import credentials, firestore
 
 
 def check_user_auth(user_id, username):
+    db_collection = "Users"
     db = firestore.client()
-    users_ref = db.collection("chatbot")
+    users_ref = db.collection(db_collection)
     users = users_ref.stream()
     if not users:
         print("No users found in the database.")
@@ -27,15 +28,17 @@ def check_user_auth(user_id, username):
 
 
 def decrement_credits(user_data):
+    db_collection = "Users"
+
     db = firestore.client()
-    doc_ref = db.collection("chatbot").get()
+    doc_ref = db.collection(db_collection).get()
     for doc in doc_ref:
         if (
             doc.to_dict()["telegramusername"] == user_data["telegramusername"]
             and doc.to_dict()["telegramId"] == user_data["telegramId"]
         ) and doc.to_dict()["credits"] > 0:
             key = doc.id
-            db.collection("chatbot").document(key).update(
+            db.collection(db_collection).document(key).update(
                 {"credits": firestore.Increment(-1)}
             )
             return True
