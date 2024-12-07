@@ -47,3 +47,4 @@ class PDF(FPDF):
                         self.multi_cell(0, 10, f"- {item}", 0, "L")
             else:
                 self.multi_cell(0, 10, f" {value}", 0, "L")
+
